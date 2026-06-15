@@ -153,11 +153,6 @@ export default function Login({ onLogin }: LoginProps) {
             Увійти
           </button>
         </form>
-
-        <div style={{ marginTop: '24px', fontSize: '12px', color: '#8892a4' }}>
-          Логін за замовчуванням: <span style={{ color: '#e2e8f0', fontWeight: 600 }}>admin</span><br />
-          Пароль: <span style={{ color: '#e2e8f0', fontWeight: 600 }}>admin123</span>
-        </div>
       </div>
     </div>
   );
