@@ -6,6 +6,7 @@ import 'song_detail_screen.dart';
 import 'add_song_screen.dart';
 import 'catalog_screen.dart';
 import '../services/auth_api_service.dart';
+import 'premium_screen.dart';
 
 class SongListScreen extends StatefulWidget {
   const SongListScreen({super.key});
@@ -105,6 +106,13 @@ class _SongListScreenState extends State<SongListScreen> with SingleTickerProvid
           title: const Text('Преміум функція', style: TextStyle(color: Colors.orangeAccent)),
           content: const Text('Додавання власних пісень доступне лише з Premium підпискою.', style: TextStyle(color: Colors.white70)),
           actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const PremiumScreen()));
+              },
+              child: const Text('ПРИДБАТИ', style: TextStyle(color: Colors.orangeAccent))
+            ),
             TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: const Text('ОК', style: TextStyle(color: Colors.greenAccent))

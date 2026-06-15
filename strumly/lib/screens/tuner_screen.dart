@@ -4,6 +4,7 @@ import '../controllers/tuner_controller.dart';
 import '../models/tuner_data.dart';
 import '../models/tuning_preset.dart';
 import '../services/auth_api_service.dart';
+import 'premium_screen.dart';
 
 class TunerScreen extends StatefulWidget {
   const TunerScreen({super.key});
@@ -63,12 +64,12 @@ class _TunerScreenState extends State<TunerScreen> {
 
             return Column(
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 const Text(
                   "STRUMLY PRO",
                   style: TextStyle(letterSpacing: 6, color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
 
                 // Перемикач режимів
                 _buildModeToggle(),
@@ -289,7 +290,16 @@ class _TunerScreenState extends State<TunerScreen> {
               onTap: () {
                 if (isPremiumOnly && !isPremium) {
                   Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Цей стрій доступний лише з Premium підпискою')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: const Text('Цей стрій доступний лише з Premium підпискою'),
+                    action: SnackBarAction(
+                      label: 'Придбати',
+                      textColor: Colors.greenAccent,
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const PremiumScreen()));
+                      },
+                    ),
+                  ));
                   return;
                 }
                 setState(() {

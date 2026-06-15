@@ -8,6 +8,7 @@ import '../models/song.dart';
 import '../widgets/chord_lyrics_display.dart';
 import '../widgets/chord_diagram.dart';
 import '../models/chord_dictionary.dart';
+import 'premium_screen.dart';
 
 class JamSessionScreen extends StatefulWidget {
   final String sessionCode;
@@ -309,6 +310,13 @@ class _JamSessionScreenState extends State<JamSessionScreen> {
             title: const Text('Преміум функція', style: TextStyle(color: Colors.orangeAccent)),
             content: const Text('Автоскрол для учасників сесії доступний лише з Premium підпискою.', style: TextStyle(color: Colors.white70)),
             actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const PremiumScreen()));
+                },
+                child: const Text('ПРИДБАТИ', style: TextStyle(color: Colors.orangeAccent))
+              ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: const Text('ОК', style: TextStyle(color: Colors.greenAccent))
