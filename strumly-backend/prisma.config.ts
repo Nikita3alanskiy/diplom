@@ -9,6 +9,6 @@ export default defineConfig({
     path: 'prisma/migrations',
   },
   datasource: {
-    url: 'postgresql://nikita@localhost:5432/strumly_db?schema=public',
+    url: process.env.DATABASE_URL || 'postgresql://nikita@localhost:5432/strumly_db?schema=public',
   },
 });
