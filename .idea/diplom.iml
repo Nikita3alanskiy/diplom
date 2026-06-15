@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/strumly/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/build" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/linux/flutter/ephemeral/.plugin_symlinks/flutter_audio_capture/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/linux/flutter/ephemeral/.plugin_symlinks/flutter_audio_capture/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/linux/flutter/ephemeral/.plugin_symlinks/flutter_audio_capture/build" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/linux/flutter/ephemeral/.plugin_symlinks/flutter_audio_capture/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/linux/flutter/ephemeral/.plugin_symlinks/flutter_audio_capture/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/linux/flutter/ephemeral/.plugin_symlinks/flutter_audio_capture/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/build" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/strumly/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/example/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

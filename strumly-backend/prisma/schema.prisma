@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id               Int          @id @default(autoincrement())
+  email            String       @unique
+  name             String
+  password         String?
+  googleId         String?      @unique
+  isPremium        Boolean      @default(false)
+  premiumUntil     DateTime?
+  avatarUrl        String?
+  createdAt        DateTime     @default(now())
+
+  playedSongs         PlayedSong[]
+  sentFriendships     Friendship[]   @relation("SentFriendships")
+  receivedFriendships Friendship[]   @relation("ReceivedFriendships")
+  messages            Message[]
+  coverVideos         CoverVideo[]
+  favoriteSongs       FavoriteSong[]
+  playlists           Playlist[]
+}
+
+model Song {
+  id         Int          @id @default(autoincrement())
+  title      String
+  artist     String       @default("Unknown")
+  lyrics     String       @db.Text
+  chords     String       @db.Text
+  audioUrl   String?
+  youtubeUrl String?
+  bpm        Int?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  playedBy      PlayedSong[]
+  favoritedBy   FavoriteSong[]
+  playlistSongs PlaylistSong[]
+}
+
+model PlayedSong {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  songId   Int
+  playedAt DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song     Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, songId])
+}
+
+model FavoriteSong {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  songId    Int
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song      Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, songId])
+}
+
+model CoverVideo {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  videoUrl  String
+  title     String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Playlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  songs     PlaylistSong[]
+}
+
+model PlaylistSong {
+  id         Int      @id @default(autoincrement())
+  playlistId Int
+  songId     Int
+  order      Int      @default(0)
+
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  song       Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([playlistId, songId])
+}
+
+model Friendship {
+  id         Int       @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     String    @default("pending")
+  createdAt  DateTime  @default(now())
+
+  sender     User      @relation("SentFriendships", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User      @relation("ReceivedFriendships", fields: [receiverId], references: [id], onDelete: Cascade)
+  messages   Message[]
+
+  @@unique([senderId, receiverId])
+}
+
+model Message {
+  id           Int        @id @default(autoincrement())
+  friendshipId Int
+  senderId     Int
+  content      String     @db.Text
+  createdAt    DateTime   @default(now())
+
+  friendship   Friendship @relation(fields: [friendshipId], references: [id], onDelete: Cascade)
+  sender       User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
