@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../controllers/tuner_controller.dart';
 import '../models/tuner_data.dart';
+import '../models/tuning_preset.dart';
+import '../services/auth_api_service.dart';
 
 class TunerScreen extends StatefulWidget {
   const TunerScreen({super.key});
@@ -93,9 +95,26 @@ class _TunerScreenState extends State<TunerScreen> {
                 _buildGuitarHead(activeIndex),
 
                 const Spacer(),
-                const Text(
-                  "STANDARD E TUNING",
-                  style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold),
+                GestureDetector(
+                  onTap: _showTuningSelectionDialog,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _controller.currentTuningName,
+                          style: const TextStyle(color: Colors.greenAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.arrow_drop_down, color: Colors.greenAccent, size: 16),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
               ],
@@ -228,6 +247,60 @@ class _TunerScreenState extends State<TunerScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  final List<TuningPreset> _presets = [
+    TuningPreset(
+      name: "STANDARD E TUNING",
+      frequencies: [82.41, 110.00, 146.83, 196.00, 246.94, 329.63],
+      labels: ["E2", "A2", "D3", "G3", "B3", "E4"],
+    ),
+    TuningPreset(
+      name: "DROP D TUNING (Premium)",
+      frequencies: [73.42, 110.00, 146.83, 196.00, 246.94, 329.63],
+      labels: ["D2", "A2", "D3", "G3", "B3", "E4"],
+    ),
+    TuningPreset(
+      name: "HALF STEP DOWN (Premium)",
+      frequencies: [77.78, 103.83, 138.59, 185.00, 233.08, 311.13],
+      labels: ["D#2", "G#2", "C#3", "F#3", "A#3", "D#4"],
+    ),
+  ];
+
+  void _showTuningSelectionDialog() async {
+    bool isPremium = await AuthApiService.isPremium();
+
+    if (!mounted) return;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1A1A),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) {
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: _presets.length,
+          itemBuilder: (ctx, i) {
+            final p = _presets[i];
+            bool isPremiumOnly = i > 0;
+            return ListTile(
+              title: Text(p.name, style: TextStyle(color: isPremiumOnly && !isPremium ? Colors.white38 : Colors.white)),
+              trailing: isPremiumOnly && !isPremium ? const Icon(Icons.lock, color: Colors.white38) : null,
+              onTap: () {
+                if (isPremiumOnly && !isPremium) {
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Цей стрій доступний лише з Premium підпискою')));
+                  return;
+                }
+                setState(() {
+                  _controller.setTuning(p.name, p.frequencies, p.labels);
+                });
+                Navigator.pop(ctx);
+              },
+            );
+          },
+        );
+      }
     );
   }
 }

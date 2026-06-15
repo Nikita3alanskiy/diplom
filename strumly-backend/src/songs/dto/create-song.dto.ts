@@ -28,4 +28,9 @@ export class CreateSongDto {
   @IsOptional()
   @IsNumber()
   bpm?: number;
+
+  @ApiPropertyOptional({ description: 'ID користувача, який додав пісню' })
+  @IsOptional()
+  @IsNumber()
+  userId?: number;
 }

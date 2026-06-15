@@ -17,6 +17,7 @@ export class SongsService {
         lyrics: dto.lyrics,
         audioUrl: dto.audioUrl ?? null,
         bpm: dto.bpm ? (typeof dto.bpm === 'string' ? parseInt(dto.bpm, 10) : dto.bpm) : null,
+        userId: dto.userId ?? null,
       },
     });
   }
@@ -32,6 +33,7 @@ export class SongsService {
         createdAt: true,
         audioUrl: true,
         bpm: true,
+        userId: true,
       },
     });
   }

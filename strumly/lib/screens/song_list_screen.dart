@@ -5,6 +5,7 @@ import '../services/favorites_api_service.dart';
 import 'song_detail_screen.dart';
 import 'add_song_screen.dart';
 import 'catalog_screen.dart';
+import '../services/auth_api_service.dart';
 
 class SongListScreen extends StatefulWidget {
   const SongListScreen({super.key});
@@ -94,6 +95,26 @@ class _SongListScreenState extends State<SongListScreen> with SingleTickerProvid
   }
 
   Future<void> _openAddSong() async {
+    bool isPremium = await AuthApiService.isPremium();
+    if (!isPremium) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: const Color(0xFF1A1A1A),
+          title: const Text('Преміум функція', style: TextStyle(color: Colors.orangeAccent)),
+          content: const Text('Додавання власних пісень доступне лише з Premium підпискою.', style: TextStyle(color: Colors.white70)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('ОК', style: TextStyle(color: Colors.greenAccent))
+            )
+          ],
+        )
+      );
+      return;
+    }
+
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(builder: (_) => const AddSongScreen()),

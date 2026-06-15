@@ -1,5 +1,6 @@
-import { Controller, Post, Body, Get, Req, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Req, HttpStatus, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -56,5 +57,17 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Недійсний Google токен' })
   async googleLogin(@Body() body: GoogleLoginDto) {
     return this.authService.googleLogin(body);
+  }
+
+  @Post('premium')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Купити преміум підписку',
+    description: 'Mock-ендпоінт для активації преміум статусу користувача на 30 днів',
+  })
+  @ApiResponse({ status: 200, description: 'Успішна покупка преміуму' })
+  async buyPremium(@Req() req) {
+    const userId = req.user.sub;
+    return this.authService.buyPremium(userId);
   }
 }

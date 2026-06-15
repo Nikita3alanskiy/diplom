@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'premium_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -23,6 +24,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          _buildSectionTitle('Підписка'),
+          ListTile(
+            leading: const Icon(Icons.star, color: Colors.orangeAccent),
+            title: const Text('Strumly Premium', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            subtitle: const Text('Керувати підпискою', style: TextStyle(color: Colors.white38)),
+            trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+            tileColor: const Color(0xFF1A1A1A),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const PremiumScreen()));
+            },
+          ),
+          const SizedBox(height: 20),
           _buildSectionTitle('Вигляд'),
           SwitchListTile(
             title: const Text('Темна тема', style: TextStyle(color: Colors.white)),

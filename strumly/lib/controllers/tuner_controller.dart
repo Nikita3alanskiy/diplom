@@ -16,11 +16,25 @@ class TunerController {
   bool _isInitialized = false;
 
   // Частоти та назви для Standard Tuning (EADGBE)
-  final List<double> _frequencies = [82.41, 110.00, 146.83, 196.00, 246.94, 329.63];
-  final List<String> _noteNames = ["E2", "A2", "D3", "G3", "B3", "E4"];
+  List<double> _frequencies = [82.41, 110.00, 146.83, 196.00, 246.94, 329.63];
+  List<String> _noteNames = ["E2", "A2", "D3", "G3", "B3", "E4"];
+  String currentTuningName = "STANDARD E TUNING";
 
   TunerController() {
     _pitchDetector = PitchDetector(44100, 2048);
+  }
+
+  void setTuning(String name, List<double> freqs, List<String> notes) {
+    currentTuningName = name;
+    _frequencies = freqs;
+    _noteNames = notes;
+    _tunerStreamController.add(TunerData(
+      note: _noteNames[manualStringIndex],
+      pitch: _frequencies[manualStringIndex],
+      distance: 0.0,
+      isInTune: false,
+      stringIndex: manualStringIndex,
+    ));
   }
 
   // ОНОВЛЕНИЙ МЕТОД: тепер він "штовхає" UI відразу після кліку

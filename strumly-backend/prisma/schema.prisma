@@ -24,6 +24,7 @@ model User {
   coverVideos         CoverVideo[]
   favoriteSongs       FavoriteSong[]
   playlists           Playlist[]
+  customSongs         Song[]         @relation("UserCustomSongs")
 }
 
 model Song {
@@ -35,9 +36,11 @@ model Song {
   audioUrl   String?
   youtubeUrl String?
   bpm        Int?
+  userId     Int?
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 
+  creator       User?          @relation("UserCustomSongs", fields: [userId], references: [id], onDelete: Cascade)
   playedBy      PlayedSong[]
   favoritedBy   FavoriteSong[]
   playlistSongs PlaylistSong[]
@@ -123,4 +126,15 @@ model Message {
 
   friendship   Friendship @relation(fields: [friendshipId], references: [id], onDelete: Cascade)
   sender       User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Chord {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  fingering   String   @db.Text
+  category    String?
+  difficulty  String?
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

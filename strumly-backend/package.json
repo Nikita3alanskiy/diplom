@@ -39,6 +39,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.3",
+    "stripe": "^22.2.1",
     "swagger-ui-dist": "^5.32.6",
     "yt-search": "^2.13.1"
   },

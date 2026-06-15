@@ -3,12 +3,10 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'auth_api_service.dart';
+import '../config/app_config.dart';
 
 class ProfileApiService {
-  static String get baseUrl {
-    if (Platform.isAndroid) return 'http://10.0.2.2:3000/api/profile';
-    return 'http://localhost:3000/api/profile';
-  }
+  static String get baseUrl => '${AppConfig.baseUrl}/profile';
 
   static Future<Map<String, String>> _headers() async {
     final token = await AuthApiService.getToken();

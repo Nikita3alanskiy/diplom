@@ -2,23 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/song.dart';
+import '../config/app_config.dart';
 
 class SongsApiService {
-  static String get baseUrl {
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:3000/api/songs';
-    } else {
-      return 'http://localhost:3000/api/songs';
-    }
-  }
-
-  static String get serverBaseUrl {
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:3000';
-    } else {
-      return 'http://localhost:3000';
-    }
-  }
+  static String get baseUrl => '${AppConfig.baseUrl}/songs';
+  static String get serverBaseUrl => AppConfig.httpBaseUrl;
 
   static Future<List<Song>> getSongs() async {
     final response = await http.get(Uri.parse(baseUrl));

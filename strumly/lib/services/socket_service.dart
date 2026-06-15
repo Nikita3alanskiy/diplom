@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'auth_api_service.dart';
 
+import '../config/app_config.dart';
+
 class SocketService {
   static SocketService? _instance;
   static SocketService get instance => _instance ??= SocketService._();
@@ -11,13 +13,7 @@ class SocketService {
   io.Socket? _socket;
   bool _isConnected = false;
 
-  String get _serverUrl {
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:3000';
-    } else {
-      return 'http://localhost:3000';
-    }
-  }
+  String get _serverUrl => AppConfig.wsBaseUrl;
 
   bool get isConnected => _isConnected;
 

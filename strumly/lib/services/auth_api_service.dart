@@ -2,21 +2,17 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_config.dart';
 
 class AuthApiService {
   // Automatically determine base URL based on platform
-  static String get baseUrl {
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:3000/api';
-    } else {
-      return 'http://localhost:3000/api';
-    }
-  }
+  static String get baseUrl => AppConfig.baseUrl;
 
   static const String _tokenKey = 'auth_token';
   static const String _userNameKey = 'user_name';
   static const String _userEmailKey = 'user_email';
   static const String _userAvatarKey = 'user_avatar';
+  static const String _isPremiumKey = 'is_premium';
 
   // Check if token exists
   static Future<bool> isAuthenticated() async {
@@ -43,9 +39,16 @@ class AuthApiService {
   }
 
   // Get User Avatar URL
+  // Get User Avatar URL
   static Future<String?> getUserAvatarUrl() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userAvatarKey);
+  }
+
+  // Get isPremium status
+  static Future<bool> isPremium() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_isPremiumKey) ?? false;
   }
 
   // Save profile data locally (after profile edit)
@@ -118,12 +121,39 @@ class AuthApiService {
   }
 
   // Logout
+  // Logout
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_userNameKey);
     await prefs.remove(_userEmailKey);
     await prefs.remove(_userAvatarKey);
+    await prefs.remove(_isPremiumKey);
+  }
+
+  // Buy Premium (mock)
+  static Future<bool> buyPremium() async {
+    try {
+      final token = await getToken();
+      if (token == null) return false;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/premium'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(_isPremiumKey, true);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
   }
 
   // Helper: Save session data
@@ -140,6 +170,9 @@ class AuthApiService {
       await prefs.setString(_userEmailKey, user['email'] ?? '');
       if (user['avatarUrl'] != null) {
         await prefs.setString(_userAvatarKey, user['avatarUrl']);
+      }
+      if (user['isPremium'] != null) {
+        await prefs.setBool(_isPremiumKey, user['isPremium']);
       }
     }
   }

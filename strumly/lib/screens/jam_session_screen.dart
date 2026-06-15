@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../services/jam_session_service.dart';
 import '../services/songs_api_service.dart';
+import '../services/auth_api_service.dart';
 import '../models/song.dart';
 import '../widgets/chord_lyrics_display.dart';
 import '../widgets/chord_diagram.dart';
@@ -293,11 +294,30 @@ class _JamSessionScreenState extends State<JamSessionScreen> {
 
   // ─── Host Actions ──────────────────────────────────────────
 
-  void _toggleHostScroll() {
+  void _toggleHostScroll() async {
     if (_isScrolling) {
       _jamService.stopScroll();
       _stopLocalScroll(); // optimistically stop local
     } else {
+      bool isPremium = await AuthApiService.isPremium();
+      if (!isPremium) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: const Color(0xFF1A1A1A),
+            title: const Text('Преміум функція', style: TextStyle(color: Colors.orangeAccent)),
+            content: const Text('Автоскрол для учасників сесії доступний лише з Premium підпискою.', style: TextStyle(color: Colors.white70)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('ОК', style: TextStyle(color: Colors.greenAccent))
+              )
+            ],
+          )
+        );
+        return;
+      }
       _jamService.startScroll(bpm: _bpm, scrollSpeed: _scrollSpeed);
     }
   }

@@ -2,13 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'auth_api_service.dart';
 
+import '../config/app_config.dart';
+
 class CatalogApiService {
-  // baseUrl = http://10.0.2.2:3000/api/catalog
-  static String get baseUrl {
-    // AuthApiService.baseUrl = http://10.0.2.2:3000/api (ends with /api)
-    // We just replace /auth-related suffix and append /catalog
-    return '${AuthApiService.baseUrl.replaceAll('/auth', '')}/catalog';
-  }
+  static String get baseUrl => '${AppConfig.baseUrl}/catalog';
 
   static Future<List<Map<String, dynamic>>> search(String query) async {
     final response = await http.get(Uri.parse('$baseUrl/search?q=${Uri.encodeComponent(query)}'));

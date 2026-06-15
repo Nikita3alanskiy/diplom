@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'auth_api_service.dart';
 
+import '../config/app_config.dart';
+
 /// Singleton service that manages the /jam WebSocket namespace.
 /// Connects independently from the chat socket.
 class JamSessionService {
@@ -14,10 +16,7 @@ class JamSessionService {
   bool _isConnected = false;
   bool get isConnected => _isConnected;
 
-  String get _serverUrl {
-    if (Platform.isAndroid) return 'http://10.0.2.2:3000';
-    return 'http://localhost:3000';
-  }
+  String get _serverUrl => AppConfig.wsBaseUrl;
 
   // ─── Connection ────────────────────────────────────────────
 

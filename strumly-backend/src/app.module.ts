@@ -13,6 +13,8 @@ import { ProfileModule } from './profile/profile.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { PlaylistsModule } from './playlists/playlists.module';
 import { JamSessionModule } from './jam-session/jam-session.module';
+import { AdminModule } from './admin/admin.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { JamSessionModule } from './jam-session/jam-session.module';
     FavoritesModule,
     PlaylistsModule,
     JamSessionModule,
+    AdminModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

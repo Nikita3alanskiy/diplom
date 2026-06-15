@@ -2,15 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'auth_api_service.dart';
+import '../config/app_config.dart';
 
 class PlayedApiService {
-  static String get baseUrl {
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:3000/api/played';
-    } else {
-      return 'http://localhost:3000/api/played';
-    }
-  }
+  static String get baseUrl => '${AppConfig.baseUrl}/played';
 
   static Future<Map<String, String>> _headers() async {
     final token = await AuthApiService.getToken();

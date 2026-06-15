@@ -202,4 +202,18 @@ export class AuthService {
       select: { id: true, name: true, email: true, avatarUrl: true, isPremium: true },
     });
   }
+
+  async buyPremium(userId: number) {
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        isPremium: true,
+        premiumUntil: nextMonth,
+      },
+      select: { id: true, isPremium: true, premiumUntil: true },
+    });
+  }
 }
