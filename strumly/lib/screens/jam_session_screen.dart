@@ -479,7 +479,7 @@ class _JamSessionScreenState extends State<JamSessionScreen> {
         ],
       ),
       
-      bottomSheet: Container(
+      bottomNavigationBar: Container(
         color: const Color(0xFF151515),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: SafeArea(

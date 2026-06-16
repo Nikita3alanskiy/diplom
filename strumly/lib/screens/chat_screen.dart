@@ -292,8 +292,10 @@ class _ChatScreenState extends State<ChatScreen> {
           // Input area
           Container(
             color: const Color(0xFF151515),
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 20),
-            child: Row(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+            child: SafeArea(
+              top: false,
+              child: Row(
               children: [
                 Expanded(
                   child: Container(
@@ -352,6 +354,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
               ],
+            ),
             ),
           ),
         ],

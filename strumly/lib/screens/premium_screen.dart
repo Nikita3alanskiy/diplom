@@ -27,19 +27,20 @@ class _PremiumScreenState extends State<PremiumScreen> {
   void _buyPremium() async {
     setState(() => _isLoading = true);
     try {
-      // 1. Відкриваємо Stripe Checkout у WebView
       await PaymentService.createCheckoutSession();
-      // Після повернення з браузера, перевіряємо статус (або можна додати кнопку "Я оплатив")
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Перевіряємо статус оплати...')),
-      );
-      // Затримка, щоб вебхук встиг обробитись (краще б додати long-polling, але для демо піде)
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Перевіряємо статус оплати...')),
+        );
+      }
       await Future.delayed(const Duration(seconds: 3));
       _checkPremium();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Помилка активації: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Помилка активації: $e'), backgroundColor: Colors.redAccent),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -77,17 +78,36 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   style: TextStyle(color: Colors.greenAccent, fontSize: 18, fontWeight: FontWeight.bold),
                 )
               else
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _buyPremium,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orangeAccent,
-                    foregroundColor: Colors.black,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                Container(
+                  width: double.infinity,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF9800), Color(0xFFFF3D00)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orangeAccent.withOpacity(0.5),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                  child: _isLoading 
-                      ? const CircularProgressIndicator(color: Colors.black)
-                      : const Text('Купити за 99 ₴ / міс', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _buyPremium,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: _isLoading 
+                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
+                        : const Text('КУПИТИ ЗА 99 ₴ / МІС', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.2, color: Colors.white)),
+                  ),
                 ),
             ],
           ),

@@ -878,7 +878,7 @@ class _SongDetailScreenState extends State<SongDetailScreen>
       ),
 
       // ── Bottom Controls ──
-      bottomSheet: Container(
+      bottomNavigationBar: Container(
         color: const Color(0xFF151515),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: SafeArea(
