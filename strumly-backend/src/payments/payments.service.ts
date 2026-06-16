@@ -27,7 +27,6 @@ export class PaymentsService {
             product_data: {
               name: 'Strumly Premium — 30 днів',
               description: 'Повний доступ до всіх преміум функцій Strumly',
-              images: [],
             },
           },
         },
