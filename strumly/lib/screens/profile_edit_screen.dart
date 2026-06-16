@@ -39,8 +39,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   String _buildFullUrl(String? path) {
     if (path == null || path.isEmpty) return '';
+    // Cloudinary and other full URLs
     if (path.startsWith('http')) return path;
-    final base = Platform.isAndroid ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+    // Legacy local paths — fallback for old data
+    final base = 'https://strumly-backend.onrender.com';
     return '$base$path';
   }
 

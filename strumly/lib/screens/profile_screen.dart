@@ -466,14 +466,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // ── Cover Videos Helpers ──
   String _fullAvatarUrl(String path) {
     if (path.startsWith('http')) return path;
-    if (Platform.isAndroid) return 'http://10.0.2.2:3000$path';
-    return 'http://localhost:3000$path';
+    return 'https://strumly-backend.onrender.com$path';
   }
 
   String _fullVideoUrl(String path) {
     if (path.startsWith('http')) return path;
-    if (Platform.isAndroid) return 'http://10.0.2.2:3000$path';
-    return 'http://localhost:3000$path';
+    return 'https://strumly-backend.onrender.com$path';
   }
 
   Widget _buildVideoCard(Map<String, dynamic> video) {

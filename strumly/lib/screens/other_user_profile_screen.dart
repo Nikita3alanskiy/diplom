@@ -53,8 +53,7 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
 
   String _fullAvatarUrl(String path) {
     if (path.startsWith('http')) return path;
-    if (Platform.isAndroid) return 'http://10.0.2.2:3000$path';
-    return 'http://localhost:3000$path';
+    return 'https://strumly-backend.onrender.com$path';
   }
 
   @override

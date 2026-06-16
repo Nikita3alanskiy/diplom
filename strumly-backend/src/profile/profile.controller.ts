@@ -1,15 +1,15 @@
 import {
   Controller, Get, Put, Post, Delete,
   Req, Body, Param, ParseIntPipe,
-  UseGuards, UseInterceptors, UploadedFile, UploadedFiles,
+  UseGuards, UseInterceptors, UploadedFile,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
+import cloudinary from '../cloudinary.config';
 
 @ApiTags('Профіль')
 @ApiBearerAuth()
@@ -22,6 +22,19 @@ export class ProfileController {
     const id = Number(req.user?.sub ?? req.user?.id);
     if (!id || isNaN(id)) throw new BadRequestException('Invalid token. Please re-login.');
     return id;
+  }
+
+  private uploadToCloudinary(buffer: Buffer, folder: string, resourceType: 'image' | 'video'): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder, resource_type: resourceType },
+        (error, result) => {
+          if (error || !result) return reject(error ?? new Error('Upload failed'));
+          resolve(result.secure_url);
+        },
+      );
+      stream.end(buffer);
+    });
   }
 
   @Put('me')
@@ -37,16 +50,10 @@ export class ProfileController {
   }
 
   @Post('avatar')
-  @ApiOperation({ summary: 'Завантажити аватарку' })
+  @ApiOperation({ summary: 'Завантажити аватарку (зберігається в Cloudinary)' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: join(process.cwd(), 'uploads', 'avatars'),
-      filename: (_, file, cb) => {
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, unique + extname(file.originalname));
-      },
-    }),
+    storage: memoryStorage(),
     fileFilter: (_, file, cb) => {
       if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
         return cb(new BadRequestException('Only image files allowed'), false);
@@ -57,7 +64,7 @@ export class ProfileController {
   }))
   async uploadAvatar(@Req() req, @UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file uploaded');
-    const avatarUrl = `/uploads/avatars/${file.filename}`;
+    const avatarUrl = await this.uploadToCloudinary(file.buffer, 'strumly/avatars', 'image');
     return this.profileService.updateProfile(this.getUserId(req), undefined, avatarUrl);
   }
 
@@ -68,27 +75,21 @@ export class ProfileController {
   }
 
   @Post('videos')
-  @ApiOperation({ summary: 'Завантажити кавер-відео (файл)' })
+  @ApiOperation({ summary: 'Завантажити кавер-відео (зберігається в Cloudinary)' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: join(process.cwd(), 'uploads', 'covers'),
-      filename: (_, file, cb) => {
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, unique + extname(file.originalname));
-      },
-    }),
+    storage: memoryStorage(),
     fileFilter: (_, file, cb) => {
       if (!file.mimetype.match(/^video\//)) {
         return cb(new BadRequestException('Only video files allowed'), false);
       }
       cb(null, true);
     },
-    limits: { fileSize: 200 * 1024 * 1024 }, // 200MB
+    limits: { fileSize: 200 * 1024 * 1024 },
   }))
   async uploadVideo(@Req() req, @UploadedFile() file: Express.Multer.File, @Body() body: { title?: string }) {
     if (!file) throw new BadRequestException('No file uploaded');
-    const videoUrl = `/uploads/covers/${file.filename}`;
+    const videoUrl = await this.uploadToCloudinary(file.buffer, 'strumly/covers', 'video');
     return this.profileService.addCoverVideo(this.getUserId(req), videoUrl, body.title);
   }
 
@@ -98,3 +99,4 @@ export class ProfileController {
     return this.profileService.deleteCoverVideo(this.getUserId(req), id);
   }
 }
+
