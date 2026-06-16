@@ -42,6 +42,7 @@ export class AuthController {
   }
 
   @Get('me')
+  @UseGuards(JwtAuthGuard)
   async me(@Req() req) {
     const userId = req?.user?.sub;
     if (!userId) {
