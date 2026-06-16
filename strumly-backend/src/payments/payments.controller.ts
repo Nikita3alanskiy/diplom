@@ -37,35 +37,6 @@ export class PaymentsController {
     return this.paymentsService.createCheckoutSession(user.id, user.email, body.returnUrl);
   }
 
-  @Get('success')
-  @ApiOperation({ summary: 'Stripe success redirect' })
-  successPage(@Res() res: Response) {
-    res.send(`
-      <html>
-        <head><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-        <body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;text-align:center;background-color:#1A1A1A;color:white;">
-          <h1 style="color:#4CAF50;">Оплата успішна!</h1>
-          <p>Дякуємо за покупку Strumly Premium.</p>
-          <p>Ви можете закрити це вікно і повернутися у додаток.</p>
-        </body>
-      </html>
-    `);
-  }
-
-  @Get('cancel')
-  @ApiOperation({ summary: 'Stripe cancel redirect' })
-  cancelPage(@Res() res: Response) {
-    res.send(`
-      <html>
-        <head><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-        <body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;text-align:center;background-color:#1A1A1A;color:white;">
-          <h1 style="color:#FF5252;">Оплату скасовано</h1>
-          <p>Ви можете закрити це вікно і повернутися у додаток.</p>
-        </body>
-      </html>
-    `);
-  }
-
   @Post('webhook')
   @ApiOperation({ summary: 'Stripe webhook (called by Stripe)' })
   async webhook(
