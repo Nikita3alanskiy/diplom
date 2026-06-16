@@ -45,10 +45,37 @@ class AuthApiService {
     return prefs.getString(_userAvatarKey);
   }
 
-  // Get isPremium status
+  // Get isPremium status from local cache
   static Future<bool> isPremium() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_isPremiumKey) ?? false;
+  }
+
+  // Refresh isPremium status from server and update local cache
+  static Future<bool> refreshPremiumFromServer() async {
+    try {
+      final token = await getToken();
+      if (token == null) return false;
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/auth/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        final isPremiumValue = data['isPremium'] as bool? ?? false;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(_isPremiumKey, isPremiumValue);
+        return isPremiumValue;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
   }
 
   // Save profile data locally (after profile edit)

@@ -18,7 +18,7 @@ class PaymentService {
   /// Create a checkout session and open it in the browser
   static Future<void> createCheckoutSession() async {
     // Determine the base url to pass as returnUrl to Stripe (to correctly handle Android emulator vs physical device vs iOS)
-    final returnUrl = AppConfig.baseUrl.replaceAll('/api', '');
+    final returnUrl = AppConfig.baseUrl;
     
     final response = await http.post(
       Uri.parse('$baseUrl/create-checkout-session'),

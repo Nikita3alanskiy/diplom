@@ -20,8 +20,37 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   void _checkPremium() async {
-    bool isPremium = await AuthApiService.isPremium();
-    if (mounted) setState(() => _isPremium = isPremium);
+    setState(() => _isLoading = true);
+    try {
+      bool isPremium = await AuthApiService.refreshPremiumFromServer();
+      if (mounted) {
+        setState(() => _isPremium = isPremium);
+        if (isPremium) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Premium активовано! Функції розблоковано.'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Premium не знайдено. Спробуйте ще раз після оплати.'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Помилка: $e'), backgroundColor: Colors.redAccent),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void _buyPremium() async {
@@ -107,6 +136,15 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     child: _isLoading 
                         ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
                         : const Text('КУПИТИ ЗА 99 ₴ / МІС', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.2, color: Colors.black87)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: TextButton(
+                    onPressed: _isLoading ? null : _checkPremium,
+                    child: const Text('Я вже оплатив (Оновити статус)', style: TextStyle(color: Colors.white70, fontSize: 16)),
                   ),
                 ),
             ],

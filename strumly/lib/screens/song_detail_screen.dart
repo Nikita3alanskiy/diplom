@@ -292,8 +292,11 @@ class _SongDetailScreenState extends State<SongDetailScreen>
                   return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator(color: Colors.greenAccent)));
                 }
                 final friends = snapshot.data ?? [];
+                final Set<int> invitedIds = {};
                 
-                return Padding(
+                return StatefulBuilder(
+                  builder: (ctx2, setInviteState) {
+                  return Padding(
                   padding: const EdgeInsets.only(top: 16, bottom: 32, left: 16, right: 16),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -312,17 +315,28 @@ class _SongDetailScreenState extends State<SongDetailScreen>
                              itemCount: friends.length,
                              itemBuilder: (context, index) {
                                final friend = friends[index]['friend'];
+                               final friendshipId = friends[index]['id'];
+                               final fid = friendshipId is int ? friendshipId : int.tryParse(friendshipId?.toString() ?? '');
+                               final isInvited = fid != null && invitedIds.contains(fid);
                                return ListTile(
                                  leading: CircleAvatar(
                                    backgroundColor: Colors.greenAccent.withOpacity(0.2),
                                    child: const Icon(Icons.person, color: Colors.greenAccent),
                                  ),
                                  title: Text(friend['name'] ?? '', style: const TextStyle(color: Colors.white)),
-                                 trailing: ElevatedButton(
-                                   style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
-                                   onPressed: () => _createAndInvite(friends[index]['id'] as int, ctx),
-                                   child: const Text('Запросити'),
-                                 ),
+                                 trailing: isInvited
+                                   ? Chip(
+                                       label: const Text('Запрошено', style: TextStyle(color: Colors.black, fontSize: 12)),
+                                       backgroundColor: Colors.grey,
+                                     )
+                                   : ElevatedButton(
+                                       style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
+                                       onPressed: fid == null ? null : () async {
+                                         setInviteState(() => invitedIds.add(fid));
+                                         await _createAndInvite(fid, ctx);
+                                       },
+                                       child: const Text('Запросити'),
+                                     ),
                                );
                              },
                            ),
@@ -340,6 +354,8 @@ class _SongDetailScreenState extends State<SongDetailScreen>
                       )
                     ],
                   ),
+                );
+                  }
                 );
               }
             );
