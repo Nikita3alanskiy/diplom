@@ -10,6 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { FriendsService } from './friends.service';
+import { PrismaService } from '../prisma.service';
 
 @WebSocketGateway({
   cors: {
@@ -27,6 +28,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly jwtService: JwtService,
     private readonly friendsService: FriendsService,
+    private readonly prisma: PrismaService,
   ) {}
 
   handleConnection(client: Socket) {
@@ -103,6 +105,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         content: message.content,
         createdAt: message.createdAt,
       });
+
+      // Send a notification to the receiver specifically
+      const friendship = await this.prisma.friendship.findUnique({ where: { id: data.friendshipId } });
+      if (friendship) {
+        const receiverId = friendship.senderId === senderId ? friendship.receiverId : friendship.senderId;
+        const targetSockets = this.userSockets.get(receiverId);
+        if (targetSockets) {
+          for (const socketId of targetSockets) {
+            this.server.to(socketId).emit('messageNotification', {
+              friendshipId: data.friendshipId,
+            });
+          }
+        }
+      }
     } catch (e) {
       client.emit('error', { message: (e as Error).message });
     }

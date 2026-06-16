@@ -11,11 +11,13 @@ import 'jam_session_screen.dart';
 class ChatScreen extends StatefulWidget {
   final int friendshipId;
   final String friendName;
+  final String? friendAvatarUrl;
 
   const ChatScreen({
     super.key,
     required this.friendshipId,
     required this.friendName,
+    this.friendAvatarUrl,
   });
 
   @override
@@ -55,6 +57,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // Load history
     await _loadMessages();
+
+    // Clear unread count
+    SocketService.instance.clearUnread(widget.friendshipId);
 
     // Connect WebSocket
     await SocketService.instance.connect();
@@ -177,13 +182,18 @@ class _ChatScreenState extends State<ChatScreen> {
             CircleAvatar(
               radius: 18,
               backgroundColor: Colors.greenAccent.withOpacity(0.2),
-              child: Text(
-                widget.friendName.isNotEmpty
-                    ? widget.friendName[0].toUpperCase()
-                    : '?',
-                style: const TextStyle(
-                    color: Colors.greenAccent, fontWeight: FontWeight.bold),
-              ),
+              backgroundImage: widget.friendAvatarUrl != null
+                  ? NetworkImage(widget.friendAvatarUrl!)
+                  : null,
+              child: widget.friendAvatarUrl == null
+                  ? Text(
+                      widget.friendName.isNotEmpty
+                          ? widget.friendName[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(
+                          color: Colors.greenAccent, fontWeight: FontWeight.bold),
+                    )
+                  : null,
             ),
             const SizedBox(width: 10),
             Column(
@@ -387,13 +397,18 @@ class _ChatScreenState extends State<ChatScreen> {
             CircleAvatar(
               radius: 15,
               backgroundColor: Colors.greenAccent.withOpacity(0.15),
-              child: Text(
-                senderName.isNotEmpty ? senderName[0].toUpperCase() : '?',
-                style: const TextStyle(
-                    color: Colors.greenAccent,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold),
-              ),
+              backgroundImage: widget.friendAvatarUrl != null
+                  ? NetworkImage(widget.friendAvatarUrl!)
+                  : null,
+              child: widget.friendAvatarUrl == null
+                  ? Text(
+                      senderName.isNotEmpty ? senderName[0].toUpperCase() : '?',
+                      style: const TextStyle(
+                          color: Colors.greenAccent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold),
+                    )
+                  : null,
             ),
             const SizedBox(width: 8),
           ],

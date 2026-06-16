@@ -26,6 +26,7 @@ class _MetronomeScreenState extends State<MetronomeScreen> with SingleTickerProv
     super.initState();
     // Pre-load the audio source
     for (var player in _players) {
+      player.setPlayerMode(PlayerMode.lowLatency);
       player.setSource(AssetSource('audio/tick.wav'));
       player.setReleaseMode(ReleaseMode.stop);
     }

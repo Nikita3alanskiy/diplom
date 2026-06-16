@@ -258,11 +258,14 @@ class _EducationScreenState extends State<EducationScreen> {
                                     fontWeight: FontWeight.bold),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            ...chords.take(4).map((c) => Container(
-                                  margin: const EdgeInsets.only(right: 4),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Wrap(
+                                spacing: 4,
+                                runSpacing: 2,
+                                children: chords.take(4).map((c) => Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
+                                      horizontal: 5, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: Colors.white.withOpacity(0.07),
                                     borderRadius: BorderRadius.circular(6),
@@ -270,7 +273,9 @@ class _EducationScreenState extends State<EducationScreen> {
                                   child: Text(c,
                                       style: const TextStyle(
                                           color: Colors.white60, fontSize: 10)),
-                                )),
+                                )).toList(),
+                              ),
+                            ),
                           ],
                         ),
                       ],

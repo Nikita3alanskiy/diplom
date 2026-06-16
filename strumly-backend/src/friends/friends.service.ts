@@ -24,7 +24,7 @@ export class FriendsService {
           },
         ],
       },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, avatarUrl: true },
       take: 10,
     });
     return users;
@@ -57,7 +57,7 @@ export class FriendsService {
     return this.prisma.friendship.create({
       data: { senderId, receiverId: receiver.id, status: 'pending' },
       include: {
-        receiver: { select: { id: true, name: true, email: true } },
+        receiver: { select: { id: true, name: true, email: true, avatarUrl: true } },
       },
     });
   }
@@ -67,7 +67,7 @@ export class FriendsService {
     return this.prisma.friendship.findMany({
       where: { receiverId: userId, status: 'pending' },
       include: {
-        sender: { select: { id: true, name: true, email: true } },
+        sender: { select: { id: true, name: true, email: true, avatarUrl: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -83,8 +83,8 @@ export class FriendsService {
         ],
       },
       include: {
-        sender: { select: { id: true, name: true, email: true } },
-        receiver: { select: { id: true, name: true, email: true } },
+        sender: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        receiver: { select: { id: true, name: true, email: true, avatarUrl: true } },
       },
     });
 
@@ -107,7 +107,7 @@ export class FriendsService {
       where: { id: friendshipId },
       data: { status: 'accepted' },
       include: {
-        sender: { select: { id: true, name: true, email: true } },
+        sender: { select: { id: true, name: true, email: true, avatarUrl: true } },
       },
     });
   }

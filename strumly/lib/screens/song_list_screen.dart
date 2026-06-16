@@ -306,8 +306,6 @@ class _SongListScreenState extends State<SongListScreen> with SingleTickerProvid
                 MaterialPageRoute(
                     builder: (_) => SongDetailScreen(
                           song: fullSong,
-                          playlist: _tabController.index == 1 ? _favoriteSongs.map((s) => s.toJson()).toList() : _songs.map((s) => s.toJson()).toList(),
-                          playlistIndex: _filtered.indexOf(song),
                         )),
               );
               _loadSongs(); // refresh favorites status

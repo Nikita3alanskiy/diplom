@@ -31,6 +31,11 @@ class _MainWrapperState extends State<MainWrapper> {
   @override
   void initState() {
     super.initState();
+    _connectAndListenForInvites();
+  }
+
+  Future<void> _connectAndListenForInvites() async {
+    await SocketService.instance.connect();
     SocketService.instance.onSessionInviteReceived(_showInviteBanner);
   }
 

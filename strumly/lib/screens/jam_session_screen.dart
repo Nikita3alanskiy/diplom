@@ -60,6 +60,7 @@ class _JamSessionScreenState extends State<JamSessionScreen> {
 
   Future<void> _initAudio() async {
     for (var p in _tickPlayers) {
+      await p.setPlayerMode(PlayerMode.lowLatency);
       await p.setSource(AssetSource('audio/tick.wav'));
       p.setReleaseMode(ReleaseMode.stop);
     }
@@ -356,9 +357,11 @@ class _JamSessionScreenState extends State<JamSessionScreen> {
       context: context,
       backgroundColor: const Color(0xFF1A1A1A),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      builder: (ctx) => SafeArea(
+        bottom: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -387,6 +390,7 @@ class _JamSessionScreenState extends State<JamSessionScreen> {
           }),
           const SizedBox(height: 20),
         ],
+      ),
       )
     );
   }

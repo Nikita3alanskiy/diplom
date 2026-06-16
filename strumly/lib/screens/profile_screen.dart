@@ -214,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   )
                 else
                   SizedBox(
-                    height: 130,
+                    height: 175,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -396,9 +396,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .join(' • ');
 
     return Container(
-      width: 140,
+      width: 145,
       margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(18),
@@ -406,30 +406,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
               color: Colors.greenAccent.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.check, color: Colors.greenAccent, size: 18),
+            child: const Icon(Icons.check, color: Colors.greenAccent, size: 16),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             song['title'] ?? '',
             style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 13),
+                fontSize: 12),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           Text(
             song['artist'] ?? '',
-            style: const TextStyle(color: Colors.white38, fontSize: 11),
+            style: const TextStyle(color: Colors.white38, fontSize: 10),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -439,7 +440,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Text(
                 chords,
                 style: const TextStyle(
-                    color: Colors.greenAccent, fontSize: 10),
+                    color: Colors.greenAccent, fontSize: 9),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),

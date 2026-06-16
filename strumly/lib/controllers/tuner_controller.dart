@@ -18,6 +18,7 @@ class TunerController {
   // Частоти та назви для Standard Tuning (EADGBE)
   List<double> _frequencies = [82.41, 110.00, 146.83, 196.00, 246.94, 329.63];
   List<String> _noteNames = ["E2", "A2", "D3", "G3", "B3", "E4"];
+  List<String> get noteNames => _noteNames;
   String currentTuningName = "STANDARD E TUNING";
 
   TunerController() {
@@ -41,6 +42,8 @@ class TunerController {
   void updateMode({required bool auto, int? index}) {
     isAutoMode = auto;
     if (index != null) manualStringIndex = index;
+
+    if (_frequencies.isEmpty) return;
 
     // Створюємо "фейковий" об'єкт даних, щоб екран миттєво оновив підсвітку кнопок
     _tunerStreamController.add(TunerData(
@@ -87,7 +90,24 @@ class TunerController {
     }
   }
 
+  static const List<String> _chromaticNotes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
   TunerData _processPitch(double pitch) {
+    if (_frequencies.isEmpty) {
+      // Chromatic Mode
+      int midiNote = (69 + 12 * (log(pitch / 440) / ln2)).round();
+      double targetPitch = 440 * pow(2, (midiNote - 69) / 12.0).toDouble();
+      String noteName = _chromaticNotes[midiNote % 12];
+      double distance = (pitch - targetPitch) / (targetPitch * 0.03); // dynamic sensitivity
+      return TunerData(
+        note: noteName,
+        pitch: pitch,
+        distance: distance.clamp(-1.0, 1.0),
+        isInTune: distance.abs() < 0.1,
+        stringIndex: -1, // No specific string
+      );
+    }
+
     int targetIndex = 0;
 
     if (isAutoMode) {

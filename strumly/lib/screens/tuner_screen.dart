@@ -161,6 +161,17 @@ class _TunerScreenState extends State<TunerScreen> {
   }
 
   Widget _buildGuitarHead(int activeIndex) {
+    if (_controller.currentTuningName.startsWith("CHROMATIC")) {
+      return Center(
+        child: SizedBox(
+          width: 280, height: 280,
+          child: Center(
+            child: Icon(Icons.music_note, color: Colors.greenAccent.withOpacity(0.2), size: 120),
+          ),
+        ),
+      );
+    }
+
     return Center(
       child: SizedBox(
         width: 280,
@@ -179,14 +190,14 @@ class _TunerScreenState extends State<TunerScreen> {
               ),
             ),
             // ЛІВА СТОРОНА (Баси) (60 - 45 = 15)
-            _buildPeg(15, 185, "E2", 0, activeIndex), // 6-та (НИЗ)
-            _buildPeg(15, 105, "A2", 1, activeIndex), // 5-та
-            _buildPeg(15, 25, "D3", 2, activeIndex),  // 4-та (ВЕРХ)
+            _buildPeg(15, 185, _controller.noteNames[0], 0, activeIndex), // 6-та (НИЗ)
+            _buildPeg(15, 105, _controller.noteNames[1], 1, activeIndex), // 5-та
+            _buildPeg(15, 25, _controller.noteNames[2], 2, activeIndex),  // 4-та (ВЕРХ)
 
             // ПРАВА СТОРОНА (Тонкі) (60 + 165 = 225)
-            _buildPeg(225, 25, "G3", 3, activeIndex),  // 3-тя (ВЕРХ)
-            _buildPeg(225, 105, "B3", 4, activeIndex), // 2-га
-            _buildPeg(225, 185, "E4", 5, activeIndex), // 1-ша (НИЗ)
+            _buildPeg(225, 25, _controller.noteNames[3], 3, activeIndex),  // 3-тя (ВЕРХ)
+            _buildPeg(225, 105, _controller.noteNames[4], 4, activeIndex), // 2-га
+            _buildPeg(225, 185, _controller.noteNames[5], 5, activeIndex), // 1-ша (НИЗ)
           ],
         ),
       ),
@@ -258,14 +269,34 @@ class _TunerScreenState extends State<TunerScreen> {
       labels: ["E2", "A2", "D3", "G3", "B3", "E4"],
     ),
     TuningPreset(
+      name: "CHROMATIC TUNER (Premium)",
+      frequencies: [],
+      labels: [],
+    ),
+    TuningPreset(
       name: "DROP D TUNING (Premium)",
       frequencies: [73.42, 110.00, 146.83, 196.00, 246.94, 329.63],
       labels: ["D2", "A2", "D3", "G3", "B3", "E4"],
     ),
     TuningPreset(
+      name: "DROP C TUNING (Premium)",
+      frequencies: [65.41, 98.00, 130.81, 174.61, 233.08, 293.66],
+      labels: ["C2", "G2", "C3", "F3", "A3", "D4"],
+    ),
+    TuningPreset(
       name: "HALF STEP DOWN (Premium)",
       frequencies: [77.78, 103.83, 138.59, 185.00, 233.08, 311.13],
       labels: ["D#2", "G#2", "C#3", "F#3", "A#3", "D#4"],
+    ),
+    TuningPreset(
+      name: "OPEN G TUNING (Premium)",
+      frequencies: [73.42, 98.00, 146.83, 196.00, 246.94, 293.66],
+      labels: ["D2", "G2", "D3", "G3", "B3", "D4"],
+    ),
+    TuningPreset(
+      name: "DADGAD (Premium)",
+      frequencies: [73.42, 110.00, 146.83, 196.00, 220.00, 293.66],
+      labels: ["D2", "A2", "D3", "G3", "A3", "D4"],
     ),
   ];
 
@@ -278,7 +309,9 @@ class _TunerScreenState extends State<TunerScreen> {
       backgroundColor: const Color(0xFF1A1A1A),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) {
-        return ListView.builder(
+        return SafeArea(
+          bottom: true,
+          child: ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: _presets.length,
           itemBuilder: (ctx, i) {
@@ -310,6 +343,7 @@ class _TunerScreenState extends State<TunerScreen> {
               },
             );
           },
+        ),
         );
       }
     );

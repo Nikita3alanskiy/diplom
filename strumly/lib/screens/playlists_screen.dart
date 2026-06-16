@@ -106,8 +106,11 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Увійдіть, щоб створити Jam Session')));
       return;
     }
-
     if (!mounted) return;
+
+    String? activeSessionCode;
+    List<Map<String, dynamic>>? loadedFriends;
+    final Set<int> invitedIds = {};
 
     showModalBottomSheet(
       context: context,
@@ -117,112 +120,188 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setModalState) {
-            return FutureBuilder<List<Map<String, dynamic>>>(
-              future: FriendsApiService.getFriends(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator(color: Colors.greenAccent)));
-                }
-                final friends = snapshot.data ?? [];
-                
-                return Padding(
-                  padding: const EdgeInsets.only(top: 16, bottom: 32, left: 16, right: 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('Jam Session (Плейліст)', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      const Text('Оберіть друзів для запрошення', style: TextStyle(color: Colors.white70)),
-                      const SizedBox(height: 16),
-                      if (friends.isEmpty)
-                         const Text('У вас ще немає друзів', style: TextStyle(color: Colors.white38))
-                      else
-                         ConstrainedBox(
-                           constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.4),
-                           child: ListView.builder(
-                             shrinkWrap: true,
-                             itemCount: friends.length,
-                             itemBuilder: (context, index) {
-                               final friend = friends[index]['friend'];
-                               return ListTile(
-                                 leading: CircleAvatar(
-                                   backgroundColor: Colors.greenAccent.withOpacity(0.2),
-                                   child: const Icon(Icons.person, color: Colors.greenAccent),
-                                 ),
-                                 title: Text(friend['name'] ?? '', style: const TextStyle(color: Colors.white)),
-                                 trailing: ElevatedButton(
-                                   style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
-                                   onPressed: () => _createAndInvite(friends[index]['id'] as int, playlist, ctx),
-                                   child: const Text('Запросити'),
-                                 ),
-                               );
-                             },
-                           ),
-                         ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                         style: ElevatedButton.styleFrom(
-                           backgroundColor: Colors.white10,
-                           foregroundColor: Colors.white,
-                           minimumSize: const Size(double.infinity, 48),
-                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                         ),
-                         onPressed: () => _createWithoutInvite(playlist, ctx),
-                         child: const Text('Створити без запрошень (тільки за кодом)'),
-                      )
-                    ],
-                  ),
-                );
-              }
-            );
-          }
+            if (loadedFriends == null) {
+              return FutureBuilder<List<Map<String, dynamic>>>(
+                future: FriendsApiService.getFriends(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator(color: Colors.greenAccent)));
+                  }
+                  loadedFriends = snapshot.data ?? [];
+                  return _buildPlaylistJamContent(ctx, setModalState, loadedFriends!, invitedIds, playlist, () => activeSessionCode, (code) { activeSessionCode = code; });
+                },
+              );
+            }
+            return _buildPlaylistJamContent(ctx, setModalState, loadedFriends!, invitedIds, playlist, () => activeSessionCode, (code) { activeSessionCode = code; });
+          },
         );
-      }
+      },
     );
   }
 
-  void _createAndInvite(int friendshipId, Map<String, dynamic> playlist, BuildContext modalContext) async {
-    Navigator.pop(modalContext);
-    
-    // 1. Fetch playlist songs
-    final songs = await PlaylistsApiService.getPlaylistSongs(playlist['id']);
-    if (songs.isEmpty) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Плейліст порожній!')));
-      return;
-    }
+  Widget _buildPlaylistJamContent(
+    BuildContext ctx,
+    StateSetter setModalState,
+    List<Map<String, dynamic>> friends,
+    Set<int> invitedIds,
+    Map<String, dynamic> playlist,
+    String? Function() getSessionCode,
+    void Function(String) setSessionCode,
+  ) {
+    return SafeArea(
+      bottom: true,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16, bottom: 16, left: 16, right: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Jam Session: ${playlist['title'] ?? ''}',
+                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text('Оберіть друзів для запрошення', style: TextStyle(color: Colors.white70)),
+            const SizedBox(height: 16),
+            if (friends.isEmpty)
+              const Text('У вас ще немає друзів', style: TextStyle(color: Colors.white38))
+            else
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.35),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: friends.length,
+                  itemBuilder: (context, index) {
+                    final friend = friends[index]['friend'] as Map<String, dynamic>? ?? {};
+                    final friendshipIdRaw = friends[index]['friendshipId'];
+                    final fid = friendshipIdRaw is int ? friendshipIdRaw : int.tryParse(friendshipIdRaw?.toString() ?? '');
+                    final friendUserId = friend['id'] as int?;
+                    final isInvited = fid != null && invitedIds.contains(fid);
+                    final avatarUrl = friend['avatarUrl'] as String?;
+                    final name = friend['name'] as String? ?? '';
 
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.greenAccent.withOpacity(0.2),
+                        backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                        child: avatarUrl == null ? const Icon(Icons.person, color: Colors.greenAccent) : null,
+                      ),
+                      title: Text(name, style: const TextStyle(color: Colors.white)),
+                      trailing: isInvited
+                        ? const Chip(
+                            label: Text('Запрошено', style: TextStyle(color: Colors.black, fontSize: 12)),
+                            backgroundColor: Colors.grey,
+                          )
+                        : ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black),
+                            onPressed: fid == null ? null : () async {
+                              setModalState(() => invitedIds.add(fid));
+                              await _sendPlaylistInvite(
+                                friendshipId: fid,
+                                friendUserId: friendUserId,
+                                playlist: playlist,
+                                getSessionCode: getSessionCode,
+                                onSessionCreated: (code) {
+                                  setSessionCode(code);
+                                  setModalState(() {});
+                                },
+                              );
+                              await Future.delayed(const Duration(milliseconds: 600));
+                              if (ctx.mounted) setModalState(() {});
+                            },
+                            child: const Text('Запросити'),
+                          ),
+                    );
+                  },
+                ),
+              ),
+            const SizedBox(height: 16),
+            if (getSessionCode() != null)
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orangeAccent,
+                  foregroundColor: Colors.black,
+                  minimumSize: const Size(double.infinity, 48),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () {
+                  final code = getSessionCode();
+                  if (code == null) return;
+                  Navigator.pop(ctx);
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => JamSessionScreen(sessionCode: code, isHost: true),
+                  ));
+                },
+                child: const Text('УВІЙТИ В JAM SESSION', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
+              )
+            else
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white10,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 48),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () => _createWithoutInvite(playlist, ctx),
+                child: const Text('Створити без запрошень (тільки за кодом)'),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _sendPlaylistInvite({
+    required int friendshipId,
+    int? friendUserId,
+    required Map<String, dynamic> playlist,
+    required String? Function() getSessionCode,
+    required void Function(String) onSessionCreated,
+  }) async {
     try {
-      // Ensure chat socket is connected first
       await SocketService.instance.connect();
       await JamSessionService.instance.connect();
+      SocketService.instance.joinRoom(friendshipId);
 
-      JamSessionService.instance.onSessionCreated((sessionCode) {
-        JamSessionService.instance.offAll();
-        
-        SocketService.instance.sendMessage(
-          friendshipId,
-          '[JAM_INVITE]$sessionCode'
-        );
-
-        if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => JamSessionScreen(sessionCode: sessionCode, isHost: true),
-            ),
+      final existingCode = getSessionCode();
+      if (existingCode != null) {
+        await Future.delayed(const Duration(milliseconds: 200));
+        SocketService.instance.sendMessage(friendshipId, '[JAM_INVITE]$existingCode');
+        if (friendUserId != null) {
+          SocketService.instance.sendSessionInvite(
+            friendUserId: friendUserId,
+            sessionCode: existingCode,
+            songTitle: playlist['title'] ?? '',
+            songId: null,
           );
         }
+        return;
+      }
+
+      final songs = await PlaylistsApiService.getPlaylistSongs(playlist['id']);
+      if (songs.isEmpty) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Плейліст порожній!')));
+        return;
+      }
+
+      JamSessionService.instance.offAll();
+      JamSessionService.instance.onSessionCreated((sessionCode) {
+        onSessionCreated(sessionCode);
+        Future.delayed(const Duration(milliseconds: 300), () {
+          SocketService.instance.sendMessage(friendshipId, '[JAM_INVITE]$sessionCode');
+          if (friendUserId != null) {
+            SocketService.instance.sendSessionInvite(
+              friendUserId: friendUserId,
+              sessionCode: sessionCode,
+              songTitle: playlist['title'] ?? '',
+              songId: null,
+            );
+          }
+        });
       });
       JamSessionService.instance.createSession(
         playlistId: playlist['id'],
         playlistSongs: songs,
       );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Помилка: $e'), backgroundColor: Colors.redAccent),
-        );
-      }
+      debugPrint('Playlist invite error: $e');
     }
   }
 

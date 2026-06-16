@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/friends_api_service.dart';
 import '../services/auth_api_service.dart';
+import '../services/socket_service.dart';
 import 'chat_screen.dart';
 import 'login_screen.dart';
 import 'other_user_profile_screen.dart';
@@ -32,6 +33,9 @@ class _CommunityScreenState extends State<CommunityScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _checkAuthAndLoad();
+    SocketService.instance.setUnreadListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -223,13 +227,14 @@ class _CommunityScreenState extends State<CommunityScreen>
                         leading: CircleAvatar(
                           backgroundColor:
                               Colors.greenAccent.withOpacity(0.15),
-                          child: Text(
+                          backgroundImage: user['avatarUrl'] != null ? NetworkImage(user['avatarUrl']) : null,
+                          child: user['avatarUrl'] == null ? Text(
                             (user['name'] as String? ?? '?')[0]
                                 .toUpperCase(),
                             style: const TextStyle(
                                 color: Colors.greenAccent,
                                 fontWeight: FontWeight.bold),
-                          ),
+                          ) : null,
                         ),
                         title: Text(user['name'] as String? ?? '',
                             style: const TextStyle(color: Colors.white)),
@@ -416,6 +421,7 @@ class _CommunityScreenState extends State<CommunityScreen>
           final friendshipId = item['friendshipId'] as int;
           final name = friend['name'] as String? ?? '';
           final email = friend['email'] as String? ?? '';
+          final avatarUrl = friend['avatarUrl'] as String?;
 
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
@@ -437,13 +443,14 @@ class _CommunityScreenState extends State<CommunityScreen>
                 child: CircleAvatar(
                   radius: 24,
                   backgroundColor: Colors.greenAccent.withOpacity(0.15),
-                  child: Text(
+                  backgroundImage: friend['avatarUrl'] != null ? NetworkImage(friend['avatarUrl']) : null,
+                  child: friend['avatarUrl'] == null ? Text(
                     name.isNotEmpty ? name[0].toUpperCase() : '?',
                     style: const TextStyle(
                         color: Colors.greenAccent,
                         fontWeight: FontWeight.bold,
                         fontSize: 18),
-                  ),
+                  ) : null,
                 ),
               ),
               title: GestureDetector(
@@ -470,7 +477,12 @@ class _CommunityScreenState extends State<CommunityScreen>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 ),
-                icon: const Icon(Icons.chat_bubble_outline, size: 16),
+                icon: Badge(
+                  isLabelVisible: SocketService.instance.unreadCounts[friendshipId] != null && SocketService.instance.unreadCounts[friendshipId]! > 0,
+                  label: Text('${SocketService.instance.unreadCounts[friendshipId] ?? 0}'),
+                  backgroundColor: Colors.redAccent,
+                  child: const Icon(Icons.chat_bubble_outline, size: 16),
+                ),
                 label: const Text('Чат'),
                 onPressed: () => Navigator.push(
                   context,
@@ -478,6 +490,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                     builder: (_) => ChatScreen(
                       friendshipId: friendshipId,
                       friendName: name,
+                      friendAvatarUrl: avatarUrl,
                     ),
                   ),
                 ),
@@ -544,12 +557,13 @@ class _CommunityScreenState extends State<CommunityScreen>
                   child: CircleAvatar(
                     radius: 22,
                     backgroundColor: Colors.blueAccent.withOpacity(0.15),
-                    child: Text(
+                    backgroundImage: sender['avatarUrl'] != null ? NetworkImage(sender['avatarUrl']) : null,
+                    child: sender['avatarUrl'] == null ? Text(
                       name.isNotEmpty ? name[0].toUpperCase() : '?',
                       style: const TextStyle(
                           color: Colors.blueAccent,
                           fontWeight: FontWeight.bold),
-                    ),
+                    ) : null,
                   ),
                 ),
                 const SizedBox(width: 12),

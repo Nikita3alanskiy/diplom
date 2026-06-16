@@ -13,6 +13,10 @@ class SocketService {
   io.Socket? _socket;
   bool _isConnected = false;
 
+  // Unread message tracking: friendshipId -> count
+  final Map<int, int> _unreadCounts = {};
+  Map<int, int> get unreadCounts => _unreadCounts;
+
   String get _serverUrl => AppConfig.wsBaseUrl;
 
   bool get isConnected => _isConnected;
@@ -42,6 +46,14 @@ class SocketService {
     _socket!.onDisconnect((_) {
       _isConnected = false;
       print('❌ WebSocket disconnected');
+    });
+
+    _socket!.on('messageNotification', (data) {
+      if (data is Map && data['friendshipId'] != null) {
+        final fId = data['friendshipId'] as int;
+        _unreadCounts[fId] = (_unreadCounts[fId] ?? 0) + 1;
+        _onUnreadChanged?.call();
+      }
     });
 
     _socket!.onError((e) {
@@ -96,6 +108,21 @@ class SocketService {
 
   void offUserTyping() {
     _socket?.off('userTyping');
+  }
+
+  // ─── Unread Messages ──────────────
+
+  void Function()? _onUnreadChanged;
+
+  void setUnreadListener(void Function() handler) {
+    _onUnreadChanged = handler;
+  }
+
+  void clearUnread(int friendshipId) {
+    if (_unreadCounts.containsKey(friendshipId)) {
+      _unreadCounts.remove(friendshipId);
+      _onUnreadChanged?.call();
+    }
   }
 
   // ─── Jam Session Invites (via /chat namespace) ──────────────
