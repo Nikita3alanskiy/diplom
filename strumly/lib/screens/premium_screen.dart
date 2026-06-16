@@ -106,7 +106,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     ),
                     child: _isLoading 
                         ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                        : const Text('КУПИТИ ЗА 99 ₴ / МІС', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.2, color: Colors.white)),
+                        : const Text('КУПИТИ ЗА 99 ₴ / МІС', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.2, color: Colors.black87)),
                   ),
                 ),
             ],

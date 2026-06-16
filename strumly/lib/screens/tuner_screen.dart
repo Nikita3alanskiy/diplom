@@ -291,10 +291,11 @@ class _TunerScreenState extends State<TunerScreen> {
                 if (isPremiumOnly && !isPremium) {
                   Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: const Text('Цей стрій доступний лише з Premium підпискою'),
+                    backgroundColor: const Color(0xFF1A1A1A),
+                    content: const Text('Цей стрій доступний лише з Premium підпискою', style: TextStyle(color: Colors.white70)),
                     action: SnackBarAction(
-                      label: 'Придбати',
-                      textColor: Colors.greenAccent,
+                      label: 'ПРИДБАТИ',
+                      textColor: Colors.orangeAccent,
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const PremiumScreen()));
                       },

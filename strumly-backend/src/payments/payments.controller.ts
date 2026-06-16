@@ -31,7 +31,7 @@ export class PaymentsController {
   @ApiOperation({ summary: 'Create Stripe Checkout session (UAH)' })
   async createSession(@Body() body: { returnUrl?: string }, @Request() req: any) {
     const user = await this.prisma.user.findUniqueOrThrow({
-      where: { id: req.user.id },
+      where: { id: req.user.sub || req.user.id },
       select: { id: true, email: true },
     });
     return this.paymentsService.createCheckoutSession(user.id, user.email, body.returnUrl);

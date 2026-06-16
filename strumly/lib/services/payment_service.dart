@@ -34,7 +34,18 @@ class PaymentService {
         throw Exception('Could not launch payment URL');
       }
     } else {
-      throw Exception('Failed to create checkout session');
+      String errorMessage = 'Failed to create checkout session';
+      try {
+        final errData = jsonDecode(response.body);
+        if (errData['message'] != null) {
+          errorMessage = 'Server error: ${errData['message']}';
+        } else {
+          errorMessage = 'Server error: ${response.body}';
+        }
+      } catch (_) {
+        errorMessage = 'Server error (${response.statusCode}): ${response.body}';
+      }
+      throw Exception(errorMessage);
     }
   }
 }
