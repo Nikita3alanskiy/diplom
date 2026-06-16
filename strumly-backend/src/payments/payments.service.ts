@@ -22,8 +22,8 @@ export class PaymentsService {
         {
           quantity: 1,
           price_data: {
-            currency: 'uah',
-            unit_amount: 9900, // 99.00 UAH у копійках
+            currency: 'pln',
+            unit_amount: 500, // 5.00 PLN у грошах
             product_data: {
               name: 'Strumly Premium — 30 днів',
               description: 'Повний доступ до всіх преміум функцій Strumly',
