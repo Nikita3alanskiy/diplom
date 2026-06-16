@@ -17,7 +17,6 @@ export class PaymentsService {
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
-      currency: 'uah',
       customer_email: userEmail,
       line_items: [
         {
